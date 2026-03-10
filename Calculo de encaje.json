@@ -1,0 +1,659 @@
+{
+  "name": "Calculo de encaje",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "18xeCBmhe8x_RVzuKooZCCIjQLhmirzzWWvcB0vJlv4w",
+          "mode": "list",
+          "cachedResultName": "Calculo de encaje",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18xeCBmhe8x_RVzuKooZCCIjQLhmirzzWWvcB0vJlv4w/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18xeCBmhe8x_RVzuKooZCCIjQLhmirzzWWvcB0vJlv4w/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -272
+      ],
+      "id": "eb239cc3-6c79-431f-9db4-f0380f84b026",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "Z44XaCJZSD23GVH3",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d0e6e066-8693-40ee-bdcf-04fc0b83690b",
+              "leftValue": "={{ $('Google Sheets Trigger').item.json[\"Saldo Hoy\"] }}",
+              "rightValue": "={{ $('Google Sheets Trigger').item.json.Encaje }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1296,
+        -288
+      ],
+      "id": "e994d7ad-af0e-4036-b39c-b06d6c4ce81d",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "franliali@gmail.com",
+        "subject": "Actualizacion de encaje",
+        "message": "Verificar el estado del tesoro, dado que el numerario disponible esta por encima del encaje permitido.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        -304
+      ],
+      "id": "04f88052-5cf2-4059-9286-29cee2823fd2",
+      "name": "Send a message",
+      "webhookId": "759ab181-0fdf-4c0c-8f15-5c094e667d5a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eRu3zhrFzGWRvL6E",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://timeapi.io/api/Time/current/zone?timeZone=America/Argentina/Buenos_Aires",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        -288
+      ],
+      "id": "aefb352f-d3a8-4954-9dd3-bc206cf6768c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fc6d6b84-80f9-4331-8171-a19cf2a5e088",
+              "name": "fecha_proceso",
+              "value": "={{ $json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "1b852039-b13f-40fb-9394-5022510d8014",
+              "name": "Movimiento",
+              "value": "={{ $('Google Sheets Trigger').item.json[\"Saldo Hoy\"] - $('Google Sheets Trigger').item.json[\"Saldo ayer\"] }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        944,
+        -288
+      ],
+      "id": "a457876a-df36-4ed8-a18b-359e5486f535",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "18xeCBmhe8x_RVzuKooZCCIjQLhmirzzWWvcB0vJlv4w",
+          "mode": "list",
+          "cachedResultName": "Calculo de encaje",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18xeCBmhe8x_RVzuKooZCCIjQLhmirzzWWvcB0vJlv4w/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18xeCBmhe8x_RVzuKooZCCIjQLhmirzzWWvcB0vJlv4w/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $('Google Sheets Trigger').item.json.Fecha }}",
+            "Movimiento": "={{ $('Edit Fields1').item.json.Movimiento }}",
+            "fecha_proceso": "={{ $('Edit Fields1').item.json.fecha_proceso }}",
+            "Procesado": "si"
+          },
+          "matchingColumns": [
+            "Fecha"
+          ],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Saldo ayer",
+              "displayName": "Saldo ayer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Saldo Hoy",
+              "displayName": "Saldo Hoy",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Encaje",
+              "displayName": "Encaje",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Movimiento",
+              "displayName": "Movimiento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Procesado",
+              "displayName": "Procesado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha_proceso",
+              "displayName": "fecha_proceso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1712,
+        -304
+      ],
+      "id": "9fb6c2c9-10fd-4113-aee9-bfc71280ac7b",
+      "name": "Update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YSTHJxrsPWXe9Ks7",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "18xeCBmhe8x_RVzuKooZCCIjQLhmirzzWWvcB0vJlv4w",
+          "mode": "list",
+          "cachedResultName": "Calculo de encaje",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18xeCBmhe8x_RVzuKooZCCIjQLhmirzzWWvcB0vJlv4w/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18xeCBmhe8x_RVzuKooZCCIjQLhmirzzWWvcB0vJlv4w/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $('Google Sheets Trigger').item.json.Fecha }}",
+            "Movimiento": "={{ $('Edit Fields1').item.json.Movimiento }}",
+            "fecha_proceso": "={{ $('Edit Fields1').item.json.fecha_proceso }}",
+            "Procesado": "si"
+          },
+          "matchingColumns": [
+            "Fecha"
+          ],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Saldo ayer",
+              "displayName": "Saldo ayer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Saldo Hoy",
+              "displayName": "Saldo Hoy",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Encaje",
+              "displayName": "Encaje",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Movimiento",
+              "displayName": "Movimiento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Procesado",
+              "displayName": "Procesado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha_proceso",
+              "displayName": "fecha_proceso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1712,
+        -80
+      ],
+      "id": "16120c3e-cb06-4091-8a99-6318d9ed6762",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YSTHJxrsPWXe9Ks7",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "246abea7-0512-4042-b673-ea7b2455cbd0",
+              "leftValue": "={{ $json.Fecha }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "fa16ef0a-e9a7-41ab-978a-f9d4eb884464",
+              "leftValue": "={{ $json[\"Saldo Hoy\"] }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "91ed7e98-4b44-4dec-bc1e-4827253e0857",
+              "leftValue": "={{ $json[\"Saldo ayer\"] }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "32e64771-7d84-4af9-8f48-84d689fb2d96",
+              "leftValue": "={{ $json.Procesado }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "={{ false }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        -272
+      ],
+      "id": "dcc25838-34ff-4508-be68-744b04d77a9d",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "content": "El trigger se ejecuta cuando se agrega una nueva fila a la planilla de Google sheets, el cual revisa todos los dias a las 16 hs para poder obtener la informacion necesaria.",
+        "height": 384,
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -464
+      ],
+      "id": "2cff9b56-6bc7-479d-99cf-f9ee69bd1f3a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Consulta la API para obtener el dato de la hora y la fecha en la que se proceso la informacion, para que se almacene como registro automatico.",
+        "height": 384,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        544,
+        -464
+      ],
+      "id": "f9899f70-3678-4d70-a047-a164bced3595",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "En este condicional, el flujo evalua que los campos esten completos antes de procesar la informacion.",
+        "height": 384
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -464
+      ],
+      "id": "14a07612-e53a-4dcb-b6ec-d86223885f67",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Captura informacion que luego va a utilizar para completar los campos correspondientes ( la fecha y realizar el calculo del movimiento de efectivo que tuvo la sucursal)",
+        "height": 384,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        864,
+        -464
+      ],
+      "id": "54d76800-39a2-42ef-a7d0-4ed2637bf4c2",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Evalua si el saldo del dia es mayor al encaje asignado a la sucursal.",
+        "height": 384,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        -464
+      ],
+      "id": "eb049b1f-05e8-4d1f-8c46-815e09d2a0e9",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Almacena la informacion en la planilla asignada. ",
+        "height": 544,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        -464
+      ],
+      "id": "b797039b-1d07-49a2-9157-f31440c51541",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "En caso de que el numerario existente en la sucursal, exceda al encaje permitido, envia un mail informando dicha situacion.",
+        "height": 384,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        -464
+      ],
+      "id": "a92ec1c0-6027-476c-8ae8-0e47bc9ce288",
+      "name": "Sticky Note6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "882acf36-1332-4928-909c-411b202bf4bc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1d3f452b217c9d09c6d4bc65945f3a0319acd0c2c746323a895b27b46b0bab3f"
+  },
+  "id": "kJtZvykWjVNA4dWT7a1VU",
+  "tags": []
+}
